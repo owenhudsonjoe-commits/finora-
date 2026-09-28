@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { ensureAccount } from "@/lib/finora.functions";
@@ -17,7 +17,7 @@ function passwordIssue(password: string) {
   return null;
 }
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({ mode, redirect }: { mode: "login" | "signup"; redirect?: string }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -39,7 +39,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     } catch {
       /* profile creation is retried on the dashboard */
     }
-    navigate({ to: "/dashboard" });
+    if (redirect) {
+      navigate({ to: redirect });
+    } else {
+      navigate({ to: "/dashboard" });
+    }
   }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -144,6 +148,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             : "Access your portfolio and wallet."}
         </p>
       </div>
+
+      {redirect?.startsWith("/admin") ? (
+        <div className="mb-5 flex items-center gap-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400">
+          <ShieldCheck className="h-4 w-4 shrink-0" />
+          <span>
+            Administrator access requested. Sign in to proceed directly to the{" "}
+            <strong className="underline">/admin</strong> control centre.
+          </span>
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === "signup" ? (
@@ -253,6 +267,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               New to FINORA?{" "}
               <Link
                 to="/signup"
+                search={redirect ? { redirect } : undefined}
                 className="text-foreground font-medium underline underline-offset-4"
               >
                 Create an account
@@ -262,7 +277,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         ) : (
           <p>
             Already registered?{" "}
-            <Link to="/login" className="text-foreground font-medium underline underline-offset-4">
+            <Link
+              to="/login"
+              search={redirect ? { redirect } : undefined}
+              className="text-foreground font-medium underline underline-offset-4"
+            >
               Sign in
             </Link>
           </p>

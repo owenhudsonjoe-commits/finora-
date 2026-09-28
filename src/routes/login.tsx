@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AuthForm, AuthShell } from "@/components/finora/auth-form";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => searchSchema.parse(search),
   head: () => ({
     meta: [
       { title: "Sign in — FINORA" },
@@ -14,9 +20,14 @@ export const Route = createFileRoute("/login")({
       { property: "og:description", content: "Access your FINORA portfolio and wallet." },
     ],
   }),
-  component: () => (
-    <AuthShell>
-      <AuthForm mode="login" />
-    </AuthShell>
-  ),
+  component: LoginPage,
 });
+
+function LoginPage() {
+  const { redirect } = Route.useSearch();
+  return (
+    <AuthShell>
+      <AuthForm mode="login" redirect={redirect} />
+    </AuthShell>
+  );
+}
