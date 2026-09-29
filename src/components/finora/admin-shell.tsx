@@ -271,3 +271,5 @@ function NoAccess({ title, body }: { title: string; body: string }) {
 export function AdminTableShell({ children }: { children: ReactNode }) {
   return <div className="surface-card overflow-x-auto">{children}</div>;
 }
+
+export { AdminLayout } from "./admin-layout";

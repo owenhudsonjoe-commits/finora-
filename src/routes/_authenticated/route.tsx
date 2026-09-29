@@ -1,12 +1,12 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { ProtectedRoute } from "@/components/finora/protected-route";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    // Admin routes (/admin, /admin/*) have their own dedicated AdminSecurityGate
-    // with in-place authentication, verification, and platform setup.
-    // Do not bounce administrators to the customer login screen.
+    // If accessing admin routes, let ProtectedRoute and AdminSecurityGate handle it directly
+    // so administrators are never bounced to the customer login screen.
     if (location.pathname === "/admin" || location.pathname.startsWith("/admin/")) {
       return { user: null };
     }
@@ -22,5 +22,9 @@ export const Route = createFileRoute("/_authenticated")({
     }
     return { user: data.user };
   },
-  component: () => <Outlet />,
+  component: () => (
+    <ProtectedRoute>
+      <Outlet />
+    </ProtectedRoute>
+  ),
 });

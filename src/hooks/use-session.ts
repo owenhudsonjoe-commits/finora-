@@ -24,3 +24,5 @@ export function useSessionUser() {
 
   return { user, loading };
 }
+
+export { useAuthRole } from "@/components/finora/protected-route";
